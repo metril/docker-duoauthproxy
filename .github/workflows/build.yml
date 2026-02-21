@@ -67,7 +67,7 @@ jobs:
     if: needs.detect-version.outputs.should_build == 'true'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     steps:
       - name: Checkout repository
@@ -108,3 +108,33 @@ jobs:
             DUO_VERSION=${{ needs.detect-version.outputs.duo_version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  create-release:
+    name: Create GitHub Release
+    needs: [detect-version, build-and-push]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.detect-version.outputs.duo_version }}
+        run: |
+          TAG="v${VERSION}"
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping"
+          else
+            gh release create "$TAG" \
+              --title "Duo Auth Proxy ${VERSION}" \
+              --notes "## Duo Authentication Proxy ${VERSION}
+
+          Container image: \`ghcr.io/metril/docker-duoauthproxy:${VERSION}\`
+
+          \`\`\`bash
+          docker pull ghcr.io/metril/docker-duoauthproxy:${VERSION}
+          \`\`\`"
+          fi
