@@ -1,0 +1,12 @@
+docker-compose.yml
+.gitlab-ci.yml
+.drone.yml
+.dockerignore
+.git
+.gitignore
+.gitattributes
+.github
+.github/**/*
+*.md
+example-config
+example-config/**/*

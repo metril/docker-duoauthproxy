@@ -1,0 +1,18 @@
+version: '3.6'
+
+services:
+  duoauthproxy:
+    container_name: duoauthproxy
+    image: ghcr.io/metril/docker-duoauthproxy:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+    restart: always
+    ports:
+      - 1812:1812/udp
+      - 1813:1813/udp
+      - 636:636
+      - 389:389
+    volumes:
+      - /var/dockerdata/duoproxy/config:/opt/duoauthproxy/conf/
+      - /var/dockerdata/duoproxy/log:/opt/duoauthproxy/log/
